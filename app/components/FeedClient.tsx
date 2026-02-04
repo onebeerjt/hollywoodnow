@@ -50,7 +50,8 @@ export default function FeedClient({ articles }: { articles: FeedArticle[] }) {
   const filtered = useMemo(() => {
     if (view === "this-year") {
       const thisYear = randomized.filter((article) => article.year === currentYear);
-      return thisYear.length > 0 ? thisYear : randomized;
+      const rest = randomized.filter((article) => article.year !== currentYear);
+      return thisYear.length > 0 ? [...thisYear, ...rest] : randomized;
     }
 
     if (view === "random") {
