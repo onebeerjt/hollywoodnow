@@ -1,11 +1,14 @@
 :root {
   color-scheme: light;
-  --paper: #f6f1e7;
-  --ink: #1c1a17;
-  --muted: #6f675c;
-  --rule: #bdb3a4;
-  --accent: #2d2a26;
-  --shadow: rgba(27, 24, 20, 0.08);
+  --paper: #f8f1e4;
+  --ink: #1b1814;
+  --muted: #6a6055;
+  --rule: #cbbda9;
+  --accent: #1c1712;
+  --gold: #b8924f;
+  --noir: #14120f;
+  --shadow: rgba(18, 16, 13, 0.14);
+  --glow: rgba(176, 137, 79, 0.25);
 }
 
 * {
@@ -21,15 +24,42 @@ body {
 
 body {
   font-family: var(--font-text), "Times New Roman", serif;
-  background: radial-gradient(circle at top, #fff8ea 0%, var(--paper) 55%),
-    repeating-linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 0.015) 0,
-      rgba(0, 0, 0, 0.015) 1px,
-      transparent 1px,
-      transparent 6px
-    );
   color: var(--ink);
+  background: radial-gradient(circle at top, #fff6de 0%, var(--paper) 55%),
+    linear-gradient(180deg, rgba(248, 242, 228, 0.8) 0%, rgba(240, 232, 214, 0.9) 100%);
+  position: relative;
+}
+
+.feed {
+  position: relative;
+  z-index: 1;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at top, rgba(0, 0, 0, 0.12), transparent 45%),
+    radial-gradient(circle at 20% 10%, rgba(176, 137, 79, 0.12), transparent 50%),
+    radial-gradient(circle at 80% 0%, rgba(176, 137, 79, 0.1), transparent 45%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    120deg,
+    rgba(0, 0, 0, 0.03) 0,
+    rgba(0, 0, 0, 0.03) 1px,
+    transparent 1px,
+    transparent 6px
+  );
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .feed {
@@ -37,7 +67,6 @@ body {
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   scroll-behavior: smooth;
-  position: relative;
 }
 
 .feed__item {
@@ -51,17 +80,17 @@ body {
 
 .feed__controls {
   position: fixed;
-  top: 18px;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
   display: inline-flex;
   gap: 8px;
-  padding: 8px;
+  padding: 10px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid var(--rule);
-  box-shadow: 0 8px 24px var(--shadow);
+  background: rgba(255, 250, 238, 0.92);
+  border: 1px solid rgba(176, 137, 79, 0.4);
+  box-shadow: 0 10px 28px var(--shadow), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
   backdrop-filter: blur(8px);
 }
 
@@ -69,27 +98,29 @@ body {
   border: none;
   background: transparent;
   font-family: var(--font-display), "Georgia", serif;
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted);
-  padding: 8px 12px;
+  padding: 8px 14px;
   border-radius: 999px;
   cursor: pointer;
+  transition: all 0.25s ease;
 }
 
 .feed__control.is-active {
-  background: var(--accent);
-  color: #fffaf2;
+  background: var(--noir);
+  color: #fff7e6;
+  box-shadow: 0 8px 20px rgba(10, 8, 6, 0.35), 0 0 0 1px rgba(176, 137, 79, 0.6);
 }
 
 .feed__control-info {
   font-size: 0.7rem;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--muted);
   align-self: center;
-  padding: 0 6px;
+  padding: 0 10px;
 }
 
 .feed__sentinel {
@@ -97,17 +128,19 @@ body {
 }
 
 .article {
-  border: 1px solid var(--rule);
-  box-shadow: 0 18px 40px var(--shadow);
-  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(203, 189, 169, 0.8);
+  box-shadow: 0 30px 70px rgba(17, 13, 9, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+  background: linear-gradient(180deg, rgba(255, 252, 246, 0.96) 0%, rgba(248, 241, 229, 0.94) 100%);
   backdrop-filter: blur(6px);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   gap: 4vh;
-  padding: 6vh 6vw;
+  padding: 7vh 6vw 8vh;
   width: 100%;
-  border-radius: 20px;
+  border-radius: 26px;
+  position: relative;
+  overflow: hidden;
 }
 
 .article__header {
@@ -118,13 +151,13 @@ body {
 .article__eyebrow {
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--muted);
 }
 
 .article__title {
   font-family: var(--font-display), "Georgia", serif;
-  font-size: clamp(2rem, 7vw, 3.4rem);
+  font-size: clamp(2.2rem, 7vw, 3.8rem);
   line-height: 1.05;
   color: var(--accent);
 }
@@ -139,6 +172,15 @@ body {
   line-height: 1.65;
   color: var(--ink);
   flex: 1;
+}
+
+.article__summary::first-letter {
+  font-family: var(--font-display), "Georgia", serif;
+  font-size: 3.2rem;
+  float: left;
+  line-height: 1;
+  padding-right: 10px;
+  color: var(--accent);
 }
 
 .article__footer {
@@ -179,10 +221,10 @@ body {
 
 .decade-card {
   width: 100%;
-  border: 1px solid var(--rule);
+  border: 1px solid rgba(176, 137, 79, 0.45);
   border-radius: 28px;
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 20px 50px var(--shadow);
+  background: linear-gradient(180deg, rgba(255, 251, 243, 0.96) 0%, rgba(245, 235, 218, 0.94) 100%);
+  box-shadow: 0 20px 50px var(--shadow), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
   padding: 10vh 8vw;
   text-align: center;
   display: grid;

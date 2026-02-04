@@ -35,24 +35,14 @@ export default function FeedClient({ articles }: { articles: FeedArticle[] }) {
   const [visibleCount, setVisibleCount] = useState(initialVisible);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const currentYear = new Date().getFullYear();
-  const randomized = useMemo(() => shuffle(articles), [articles]);
-  const years = useMemo(
-    () =>
-      Array.from(
-        new Set(randomized.map((article) => article.year))
-      ).sort((a, b) => a - b),
-    [randomized]
+  const [shuffleSeed, setShuffleSeed] = useState(() => Math.random());
+  const randomized = useMemo(
+    () => shuffle(articles),
+    [articles, shuffleSeed]
   );
-  const [randomYear, setRandomYear] = useState<number | null>(
-    years.length ? years[Math.floor(Math.random() * years.length)] : null
-  );
-
   const handleViewChange = (next: ViewMode) => {
     if (next === "random") {
-      const nextYear = years.length
-        ? years[Math.floor(Math.random() * years.length)]
-        : null;
-      setRandomYear(nextYear);
+      setShuffleSeed(Math.random());
     }
     setView(next);
   };
@@ -64,15 +54,11 @@ export default function FeedClient({ articles }: { articles: FeedArticle[] }) {
     }
 
     if (view === "random") {
-      if (!randomYear) {
-        return randomized;
-      }
-      const byYear = randomized.filter((article) => article.year === randomYear);
-      return byYear.length ? shuffle(byYear) : randomized;
+      return randomized;
     }
 
     return randomized;
-  }, [currentYear, randomYear, randomized, view]);
+  }, [currentYear, randomized, view]);
 
   const visibleArticles = useMemo(
     () => filtered.slice(0, visibleCount),
@@ -94,7 +80,7 @@ export default function FeedClient({ articles }: { articles: FeedArticle[] }) {
 
   useEffect(() => {
     setVisibleCount(initialVisible);
-  }, [view, randomYear, randomized]);
+  }, [view, randomized]);
 
   useEffect(() => {
     const node = sentinelRef.current;
@@ -135,8 +121,8 @@ export default function FeedClient({ articles }: { articles: FeedArticle[] }) {
             </button>
           );
         })}
-        {view === "random" && randomYear ? (
-          <span className="feed__control-info">{randomYear}</span>
+        {view === "random" ? (
+          <span className="feed__control-info">Shuffle</span>
         ) : null}
       </div>
 
