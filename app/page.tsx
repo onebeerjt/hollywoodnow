@@ -46,8 +46,109 @@ const fallbackArticles = [
     summary:
       "A once-quiet district becomes a hub for screenwriters, cafes, and public readings, shaping a new creative corridor in the city.",
     url: "https://example.com/city-arts-journal"
+  },
+  {
+    title: "Neon Marquees Return to Sunset",
+    year: 1984,
+    source: "Pacific Evening",
+    summary:
+      "A preservation effort revives the glow of classic theater signs, restoring a corridor once nicknamed the electric boulevard.",
+    url: "https://example.com/pacific-evening"
+  },
+  {
+    title: "Costume Vault Opens for a One-Night Exhibit",
+    year: 1976,
+    source: "Studio Ledger",
+    summary:
+      "An archive of hand-stitched gowns, capes, and uniforms is displayed for the public, honoring generations of craftspeople.",
+    url: "https://example.com/studio-ledger"
+  },
+  {
+    title: "The Quiet Art of Foley Comes Back in Style",
+    year: 1999,
+    source: "Soundstage Review",
+    summary:
+      "Younger filmmakers embrace analog sound effects again, with workshops filling up for hands-on sessions.",
+    url: "https://example.com/soundstage-review"
+  },
+  {
+    title: "A Modern Ode to the Studio System",
+    year: 2001,
+    source: "Cinema Weekly",
+    summary:
+      "A new production slate mimics the golden age model, bundling talent into ensembles that rotate across films.",
+    url: "https://example.com/cinema-weekly"
+  },
+  {
+    title: "Griffith Park Hosts Outdoor Scoring Night",
+    year: 2016,
+    source: "LA Arts Wire",
+    summary:
+      "Composers perform a live score beneath the stars as classic scenes play on a hillside screen.",
+    url: "https://example.com/la-arts-wire"
+  },
+  {
+    title: "Indie Cinemas Add Private Listening Lounges",
+    year: 2020,
+    source: "Indie Screen",
+    summary:
+      "Boutique theaters introduce headphone lounges and curated playlists to extend the screening experience.",
+    url: "https://example.com/indie-screen"
+  },
+  {
+    title: "The Stunt School That Trains the Next Wave",
+    year: 2008,
+    source: "Action Journal",
+    summary:
+      "A dedicated academy expands its program, teaching safe wire work and practical set choreography.",
+    url: "https://example.com/action-journal"
+  },
+  {
+    title: "Restoring Hollywood’s Lost Backlot Streets",
+    year: 1995,
+    source: "Production Today",
+    summary:
+      "A reconstruction project revives a classic city block set, focusing on period-correct signage and lighting.",
+    url: "https://example.com/production-today"
+  },
+  {
+    title: "New Wave Directors Revisit Studio Epics",
+    year: 2010,
+    source: "Film Quarterly",
+    summary:
+      "A generation of directors retools the studio epic format with smaller casts and more intimate pacing.",
+    url: "https://example.com/film-quarterly"
+  },
+  {
+    title: "A Revival of Hand-Painted Movie Posters",
+    year: 1989,
+    source: "Art Deco Press",
+    summary:
+      "Illustrators return to brushwork and ink textures, bringing gallery-quality posters to boutique screenings.",
+    url: "https://example.com/art-deco-press"
   }
 ];
+
+function mergeFallback<T extends { title: string; year: number }>(
+  primary: T[],
+  fallback: T[],
+  minCount = 12
+) {
+  if (primary.length >= minCount) {
+    return primary;
+  }
+  const seen = new Set(primary.map((item) => `${item.title}-${item.year}`));
+  const merged = [...primary];
+  for (const item of fallback) {
+    const key = `${item.title}-${item.year}`;
+    if (seen.has(key)) {
+      continue;
+    }
+    merged.push(item);
+    seen.add(key);
+  }
+  return merged;
+}
 
 async function getArticles() {
   const apiKey = process.env.GNEWS_API_KEY;
@@ -81,7 +182,7 @@ async function getArticles() {
         });
 
         const response = await fetch(`https://gnews.io/api/v4/search?${params}`, {
-          next: { revalidate: 600 }
+          next: { revalidate: 60 }
         });
 
         if (!response.ok) {
@@ -100,7 +201,7 @@ async function getArticles() {
 
     const seen = new Set<string>();
 
-    return merged
+    const normalized = merged
       .filter((article) => {
         const key = `${article.title}-${article.publishedAt}`;
         if (seen.has(key)) {
@@ -126,6 +227,7 @@ async function getArticles() {
         url: article.url
       };
     });
+    return mergeFallback(normalized, fallbackArticles);
   } catch {
     return fallbackArticles;
   }
