@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Article from "./Article";
 
 type FeedArticle = {
@@ -30,14 +30,18 @@ function shuffle<T>(items: T[]) {
 }
 
 export default function FeedClient({ articles }: { articles: FeedArticle[] }) {
+  const initialVisible = 3;
   const [view, setView] = useState<ViewMode>("this-year");
+  const [visibleCount, setVisibleCount] = useState(initialVisible);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
   const currentYear = new Date().getFullYear();
+  const randomized = useMemo(() => shuffle(articles), [articles]);
   const years = useMemo(
     () =>
       Array.from(
-        new Set(articles.map((article) => article.year))
+        new Set(randomized.map((article) => article.year))
       ).sort((a, b) => a - b),
-    [articles]
+    [randomized]
   );
   const [randomYear, setRandomYear] = useState<number | null>(
     years.length ? years[Math.floor(Math.random() * years.length)] : null
@@ -55,31 +59,65 @@ export default function FeedClient({ articles }: { articles: FeedArticle[] }) {
 
   const filtered = useMemo(() => {
     if (view === "this-year") {
-      const thisYear = articles.filter((article) => article.year === currentYear);
-      return thisYear.length > 0 ? thisYear : articles;
+      const thisYear = randomized.filter((article) => article.year === currentYear);
+      return thisYear.length > 0 ? thisYear : randomized;
     }
 
     if (view === "random") {
       if (!randomYear) {
-        return articles;
+        return randomized;
       }
-      const byYear = articles.filter((article) => article.year === randomYear);
-      return byYear.length ? shuffle(byYear) : articles;
+      const byYear = randomized.filter((article) => article.year === randomYear);
+      return byYear.length ? shuffle(byYear) : randomized;
     }
 
-    return articles;
-  }, [articles, currentYear, randomYear, view]);
+    return randomized;
+  }, [currentYear, randomYear, randomized, view]);
+
+  const visibleArticles = useMemo(
+    () => filtered.slice(0, visibleCount),
+    [filtered, visibleCount]
+  );
 
   const byDecade = useMemo(() => {
     const groups: Record<string, FeedArticle[]> = {};
-    filtered.forEach((article) => {
+    visibleArticles.forEach((article) => {
       const decade = `${Math.floor(article.year / 10) * 10}s`;
       groups[decade] = groups[decade] || [];
       groups[decade].push(article);
     });
 
-    return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]));
-  }, [filtered]);
+    return Object.entries(groups)
+      .map(([decade, items]) => [decade, shuffle(items)] as const)
+      .sort((a, b) => b[0].localeCompare(a[0]));
+  }, [visibleArticles]);
+
+  useEffect(() => {
+    setVisibleCount(initialVisible);
+  }, [view, randomYear, randomized]);
+
+  useEffect(() => {
+    const node = sentinelRef.current;
+    if (!node) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry?.isIntersecting) {
+          return;
+        }
+        setVisibleCount((prev) =>
+          prev >= filtered.length ? prev : Math.min(prev + 1, filtered.length)
+        );
+      },
+      { rootMargin: "200px" }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [filtered.length]);
 
   return (
     <main className="feed">
@@ -120,7 +158,7 @@ export default function FeedClient({ articles }: { articles: FeedArticle[] }) {
               </section>
             ))
           ])
-        : filtered.map((article) => (
+        : visibleArticles.map((article) => (
             <section
               className="feed__item"
               key={`${article.title}-${article.year}`}
@@ -128,6 +166,7 @@ export default function FeedClient({ articles }: { articles: FeedArticle[] }) {
               <Article {...article} />
             </section>
           ))}
+      <div className="feed__sentinel" ref={sentinelRef} aria-hidden />
     </main>
   );
 }
