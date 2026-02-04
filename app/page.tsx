@@ -22,13 +22,35 @@ type FeedArticle = {
   url?: string;
 };
 
-function trimSummary(text: string, limit = 520) {
+function trimSummary(text: string, limit = 1200) {
   if (text.length <= limit) {
     return text;
   }
   const clipped = text.slice(0, limit);
   const lastSpace = clipped.lastIndexOf(" ");
   return `${clipped.slice(0, lastSpace > 0 ? lastSpace : limit)}…`;
+}
+
+function buildSummary(article: GNewsArticle) {
+  const raw = [article.content, article.description]
+    .filter(Boolean)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const cleaned = raw.replace(/\s*\[\+\d+\s+chars\]\s*$/i, "");
+  return cleaned ? trimSummary(cleaned) : "No summary available yet.";
+}
+
+function normalizeUrl(url?: string) {
+  if (!url) {
+    return undefined;
+  }
+  try {
+    const parsed = new URL(url);
+    return parsed.toString();
+  } catch {
+    return undefined;
+  }
 }
 
 const fallbackArticles: FeedArticle[] = [
@@ -182,7 +204,7 @@ async function getArticles() {
   const baseParams = {
     lang: "en",
     country: "us",
-    max: "10",
+    max: "20",
     sortby: "relevance",
     in: "title,description",
     apikey: apiKey
@@ -191,7 +213,9 @@ async function getArticles() {
   const queries = [
     "hollywood OR film OR movie OR cinema",
     "\"golden age\" hollywood OR classic hollywood",
-    "\"1950s\" hollywood OR \"old hollywood\" OR \"film noir\""
+    "\"1950s\" hollywood OR \"old hollywood\" OR \"film noir\"",
+    "\"studio system\" OR \"classic cinema\" OR \"silver screen\"",
+    "academy awards OR oscar winner OR red carpet"
   ];
 
   try {
@@ -223,7 +247,7 @@ async function getArticles() {
 
     const seen = new Set<string>();
 
-    const normalized = merged
+    const normalized: FeedArticle[] = merged
       .filter((article) => {
         const key = `${article.title}-${article.publishedAt}`;
         if (seen.has(key)) {
@@ -233,22 +257,23 @@ async function getArticles() {
         return true;
       })
       .map((article) => {
-      const publishedAt = article.publishedAt
-        ? new Date(article.publishedAt)
-        : null;
-      const year = publishedAt ? publishedAt.getFullYear() : new Date().getFullYear();
-      const summarySource = article.content || article.description || "";
-      const summary = summarySource.replace(/\\s*\\[\\+\\d+\\s+chars\\]\\s*$/i, "");
+        const publishedAt = article.publishedAt
+          ? new Date(article.publishedAt)
+          : null;
+        const year = publishedAt
+          ? publishedAt.getFullYear()
+          : new Date().getFullYear();
+        const summary = buildSummary(article);
 
-      return {
-        title: article.title,
-        year,
-        source: article.source?.name ?? "Unknown Source",
-        summary: summary ? trimSummary(summary) : "No summary available yet.",
-        publishedAt: article.publishedAt,
-        url: article.url
-      };
-    });
+        return {
+          title: article.title,
+          year,
+          source: article.source?.name ?? "Unknown Source",
+          summary,
+          publishedAt: article.publishedAt,
+          url: normalizeUrl(article.url)
+        };
+      });
     return mergeFallback(normalized, fallbackArticles);
   } catch {
     return fallbackArticles;
