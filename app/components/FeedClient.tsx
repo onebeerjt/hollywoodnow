@@ -51,7 +51,10 @@ export default function FeedClient({ articles }: { articles: FeedArticle[] }) {
     if (view === "this-year") {
       const thisYear = randomized.filter((article) => article.year === currentYear);
       const rest = randomized.filter((article) => article.year !== currentYear);
-      return thisYear.length > 0 ? [...thisYear, ...rest] : randomized;
+      if (thisYear.length <= 1) {
+        return randomized;
+      }
+      return [...shuffle(thisYear), ...shuffle(rest)];
     }
 
     if (view === "random") {
