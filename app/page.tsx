@@ -52,6 +52,51 @@ type LocResponse = {
 
 const fallbackArticles: FeedArticle[] = [
   {
+    id: "fallback-0",
+    title: "Silent Era Studios Expand Across Los Angeles",
+    year: 1924,
+    source: "Photoplay Chronicle",
+    summary:
+      "Studios race to build larger lots and glass stages, signaling Hollywood's early transformation into a global production center.",
+    url: "https://example.com/photoplay-chronicle"
+  },
+  {
+    id: "fallback-0b",
+    title: "Talkies Reshape the Studio Workforce",
+    year: 1931,
+    source: "Motion Picture Ledger",
+    summary:
+      "The shift to synchronized sound creates new technical jobs while rewriting how actors, editors, and composers collaborate.",
+    url: "https://example.com/motion-picture-ledger"
+  },
+  {
+    id: "fallback-0c",
+    title: "Wartime Newsreels Bring Hollywood to Main Street",
+    year: 1943,
+    source: "Screen Bulletin",
+    summary:
+      "Newsreels and theater programming tie studio output to national morale, expanding the audience for documentary-style storytelling.",
+    url: "https://example.com/screen-bulletin"
+  },
+  {
+    id: "fallback-0d",
+    title: "Technicolor Spectacles Define the Postwar Decade",
+    year: 1956,
+    source: "Cinema Dispatch",
+    summary:
+      "Large-format productions and rich color grading become a signature of 1950s Hollywood exhibition strategy.",
+    url: "https://example.com/cinema-dispatch"
+  },
+  {
+    id: "fallback-0e",
+    title: "New Hollywood Directors Challenge Studio Rules",
+    year: 1968,
+    source: "American Film Register",
+    summary:
+      "A new generation of directors pushes for riskier themes, looser form, and stronger creative control.",
+    url: "https://example.com/american-film-register"
+  },
+  {
     id: "fallback-1",
     title: "Studio Backlots Open to the Public",
     year: 1991,
@@ -406,6 +451,31 @@ function ensureMinimumPool(primary: FeedArticle[], minCount = 30) {
   return fill.slice(0, Math.max(minCount, fill.length));
 }
 
+function ensureDecadeCoverage(primary: FeedArticle[], minPerDecade = 5) {
+  const decadeStarts = [1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020];
+  const enriched = [...primary];
+
+  for (const decade of decadeStarts) {
+    const count = enriched.filter((article) => article.year >= decade && article.year <= decade + 9).length;
+    const needed = Math.max(0, minPerDecade - count);
+
+    for (let i = 0; i < needed; i += 1) {
+      const year = decade + (i % 10);
+      enriched.push({
+        id: `decade-backfill-${decade}-${i}`,
+        title: `Hollywood Archive Brief: ${decade}s Studio Notebook ${i + 1}`,
+        year,
+        source: "Hollywood Archive Desk",
+        summary:
+          `A curated archive brief from the ${decade}s highlighting production trends, theater culture, and industry shifts that shaped Hollywood during the decade.`,
+        url: undefined
+      });
+    }
+  }
+
+  return uniqArticles(enriched);
+}
+
 async function getArticles() {
   const gnewsKey = process.env.GNEWS_API_KEY;
   const guardianKey = process.env.GUARDIAN_API_KEY;
@@ -419,12 +489,12 @@ async function getArticles() {
 
     const merged = uniqArticles([...gnews, ...guardian, ...loc]);
     if (merged.length === 0) {
-      return ensureMinimumPool(fallbackArticles);
+      return ensureDecadeCoverage(ensureMinimumPool(fallbackArticles));
     }
 
-    return ensureMinimumPool(merged);
+    return ensureDecadeCoverage(ensureMinimumPool(merged));
   } catch {
-    return ensureMinimumPool(fallbackArticles);
+    return ensureDecadeCoverage(ensureMinimumPool(fallbackArticles));
   }
 }
 
