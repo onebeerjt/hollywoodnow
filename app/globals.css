@@ -91,6 +91,36 @@ body::before {
   margin-top: 0.75rem;
 }
 
+.feed__filter {
+  margin-top: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 252, 245, 0.88);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  box-shadow: 0 8px 18px rgba(28, 22, 14, 0.1);
+}
+
+.feed__filter-label {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+
+.feed__filter-select {
+  border: none;
+  background: transparent;
+  font-family: var(--font-display), "Georgia", serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  text-transform: uppercase;
+  outline: none;
+}
+
 .feed__decade-pill {
   border: 1px solid var(--line);
   background: rgba(255, 252, 245, 0.88);

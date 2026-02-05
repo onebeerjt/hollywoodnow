@@ -30,6 +30,57 @@ function shuffle<T>(items: T[]) {
   return copy;
 }
 
+function mixByDecade(items: FeedArticle[]) {
+  const groups = new Map<number, FeedArticle[]>();
+  let maxDecade = 0;
+
+  items.forEach((article) => {
+    const decade = Math.floor(article.year / 10) * 10;
+    maxDecade = Math.max(maxDecade, decade);
+    const bucket = groups.get(decade) ?? [];
+    bucket.push(article);
+    groups.set(decade, bucket);
+  });
+
+  for (const [decade, bucket] of groups.entries()) {
+    groups.set(decade, shuffle(bucket));
+  }
+
+  const result: FeedArticle[] = [];
+  const decadeKeys = Array.from(groups.keys());
+
+  while (decadeKeys.some((decade) => (groups.get(decade) ?? []).length > 0)) {
+    const weighted = decadeKeys
+      .map((decade) => {
+        const remaining = groups.get(decade)?.length ?? 0;
+        if (remaining === 0) {
+          return null;
+        }
+        const ageBoost = 1 + (maxDecade - decade) / 100;
+        const weight = remaining * ageBoost;
+        return { decade, weight };
+      })
+      .filter(Boolean) as Array<{ decade: number; weight: number }>;
+
+    const total = weighted.reduce((sum, item) => sum + item.weight, 0);
+    let roll = Math.random() * total;
+
+    for (const entry of weighted) {
+      roll -= entry.weight;
+      if (roll <= 0) {
+        const bucket = groups.get(entry.decade) ?? [];
+        const next = bucket.shift();
+        if (next) {
+          result.push(next);
+        }
+        break;
+      }
+    }
+  }
+
+  return result;
+}
+
 export default function FeedClient({ articles }: { articles: FeedArticle[] }) {
   const initialVisible = 6;
   const batchSize = 3;
@@ -37,6 +88,7 @@ export default function FeedClient({ articles }: { articles: FeedArticle[] }) {
   const [seed, setSeed] = useState(0);
   const [visibleCount, setVisibleCount] = useState(initialVisible);
   const [selectedDecade, setSelectedDecade] = useState<string | null>(null);
+  const [homeDecade, setHomeDecade] = useState<string>("all");
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const currentYear = new Date().getFullYear();
@@ -55,13 +107,20 @@ export default function FeedClient({ articles }: { articles: FeedArticle[] }) {
     }
   }, [decades, selectedDecade]);
 
-  const randomized = useMemo(() => shuffle(articles), [articles, seed]);
+  const randomized = useMemo(() => mixByDecade(shuffle(articles)), [articles, seed]);
 
   const feed = useMemo(() => {
     if (view === "this-year") {
-      const thisYear = randomized.filter((article) => article.year === currentYear);
-      const rest = randomized.filter((article) => article.year !== currentYear);
-      return [...thisYear, ...rest];
+      const decadeFilter =
+        homeDecade === "all" ? null : Number(homeDecade.replace("s", ""));
+      const base = decadeFilter
+        ? randomized.filter(
+            (article) => article.year >= decadeFilter && article.year <= decadeFilter + 9
+          )
+        : randomized;
+      const thisYear = base.filter((article) => article.year === currentYear);
+      const rest = base.filter((article) => article.year !== currentYear);
+      return [...shuffle(thisYear), ...rest];
     }
 
     if (view === "by-decade" && selectedDecade) {
@@ -70,13 +129,13 @@ export default function FeedClient({ articles }: { articles: FeedArticle[] }) {
     }
 
     return randomized;
-  }, [currentYear, randomized, selectedDecade, view]);
+  }, [currentYear, homeDecade, randomized, selectedDecade, view]);
 
   const visibleArticles = useMemo(() => feed.slice(0, visibleCount), [feed, visibleCount]);
 
   useEffect(() => {
     setVisibleCount(initialVisible);
-  }, [view, selectedDecade, seed]);
+  }, [view, selectedDecade, seed, homeDecade]);
 
   const handleViewChange = (next: ViewMode) => {
     setView(next);
@@ -127,6 +186,29 @@ export default function FeedClient({ articles }: { articles: FeedArticle[] }) {
             );
           })}
         </div>
+        {view === "this-year" ? (
+          <div className="feed__filter">
+            <label className="feed__filter-label" htmlFor="home-decade">
+              Decade
+            </label>
+            <select
+              id="home-decade"
+              className="feed__filter-select"
+              value={homeDecade}
+              onChange={(event) => {
+                setHomeDecade(event.target.value);
+                setSeed(Math.random());
+              }}
+            >
+              <option value="all">All decades</option>
+              {decades.map((decade) => (
+                <option key={decade} value={decade}>
+                  {decade}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
         {view === "by-decade" ? (
           <div className="feed__decade-pills" aria-label="Choose decade">
             {decades.map((decade) => (
