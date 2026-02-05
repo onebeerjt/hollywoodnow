@@ -281,7 +281,7 @@ async function fetchGNews(apiKey: string): Promise<FeedArticle[]> {
       const year = publishedAt ? new Date(publishedAt).getFullYear() : new Date().getFullYear();
       const summary = trimSummary(
         stripHtml(`${article.content ?? ""} ${article.description ?? ""}`).replace(
-          /\s*\[\+\d+\s+chars\]\s*$/i,
+          /\s*\[\+?\d+\s+chars\]\s*/gi,
           ""
         )
       );

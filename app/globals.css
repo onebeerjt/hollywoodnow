@@ -156,7 +156,7 @@ body::before {
 .article__summary {
   line-height: 1.62;
   font-size: clamp(1.02rem, 2.8vw, 1.45rem);
-  max-height: clamp(12rem, 40vh, 24rem);
+  max-height: clamp(20rem, 55vh, 34rem);
   overflow: hidden;
   position: relative;
   color: #2a241e;
@@ -172,13 +172,13 @@ body::before {
   padding: 0.16rem 0.45rem 0 0;
 }
 
-.article__summary:not(.is-expanded)::after {
+.article__summary.is-collapsed::after {
   content: "";
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 3.1rem;
+  height: 2.6rem;
   background: linear-gradient(180deg, rgba(255, 252, 245, 0) 0%, rgba(255, 252, 245, 0.9) 68%, rgba(255, 252, 245, 0.98) 100%);
   pointer-events: none;
 }

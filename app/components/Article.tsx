@@ -14,6 +14,7 @@ export default function Article({ title, year, source, summary, url }: ArticlePr
   const [expanded, setExpanded] = useState(false);
   const [canExpand, setCanExpand] = useState(false);
   const summaryRef = useRef<HTMLParagraphElement | null>(null);
+  const longByLength = summary.length > 900;
 
   useEffect(() => {
     const node = summaryRef.current;
@@ -40,10 +41,15 @@ export default function Article({ title, year, source, summary, url }: ArticlePr
       </header>
 
       <div className="article__body">
-        <p ref={summaryRef} className={`article__summary ${expanded ? "is-expanded" : ""}`}>
+        <p
+          ref={summaryRef}
+          className={`article__summary ${expanded ? "is-expanded" : ""} ${
+            !expanded && (canExpand || longByLength) ? "is-collapsed" : ""
+          }`}
+        >
           {summary}
         </p>
-        {canExpand ? (
+        {canExpand || longByLength ? (
           <button
             type="button"
             className="article__toggle"
