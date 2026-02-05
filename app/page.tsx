@@ -215,7 +215,7 @@ const fallbackArticles: FeedArticle[] = [
   }
 ];
 
-function trimSummary(text: string, limit = 900) {
+function trimSummary(text: string, limit = 2200) {
   if (text.length <= limit) {
     return text;
   }
@@ -376,7 +376,7 @@ async function fetchGuardian(apiKey?: string): Promise<FeedArticle[]> {
         ? new Date(item.webPublicationDate).getFullYear()
         : new Date().getFullYear();
       const summary = trimSummary(
-        stripHtml(`${item.fields?.trailText ?? ""} ${item.fields?.bodyText ?? ""}`)
+        stripHtml(`${item.fields?.bodyText ?? ""} ${item.fields?.trailText ?? ""}`)
       );
 
       return {
