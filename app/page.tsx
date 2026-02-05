@@ -31,18 +31,6 @@ function trimSummary(text: string, limit = 1200) {
   return `${clipped.slice(0, lastSpace > 0 ? lastSpace : limit)}…`;
 }
 
-function enrichSummary(summary: string, title: string, source: string, year: number) {
-  const cleaned = summary.replace(/\s+/g, " ").trim();
-  if (cleaned.length >= 420) {
-    return trimSummary(cleaned, 1200);
-  }
-
-  const archiveContext = `In this archive-style brief from ${source}, editors frame "${title}" as part of a longer Hollywood arc, where production choices, audience appetite, and studio strategy all move together. Reporters describe how the moment reflects wider shifts in financing, release patterns, and creative risk-taking.`;
-  const culturalContext = `The piece also notes the cultural layer behind the headline: neighborhood theaters, fan communities, and craft teams often shape how these stories land beyond opening weekend. By reading the event in context of ${year}, the coverage treats the headline as a signal of where cinema is headed next, not just a one-day spike.`;
-
-  return trimSummary(`${cleaned} ${archiveContext} ${culturalContext}`, 1200);
-}
-
 function buildSummary(article: GNewsArticle) {
   const raw = [article.content, article.description]
     .filter(Boolean)
@@ -53,12 +41,7 @@ function buildSummary(article: GNewsArticle) {
   if (!cleaned) {
     return "No summary available yet.";
   }
-  return enrichSummary(
-    cleaned,
-    article.title,
-    article.source?.name ?? "Unknown Source",
-    article.publishedAt ? new Date(article.publishedAt).getFullYear() : new Date().getFullYear()
-  );
+  return trimSummary(cleaned, 1200);
 }
 
 function normalizeUrl(url?: string) {
@@ -214,37 +197,9 @@ function mergeFallback<T extends { title: string; year: number }>(
   return merged;
 }
 
-function ensureMinStories(primary: FeedArticle[], minCount = 36) {
+function ensureMinStories(primary: FeedArticle[], minCount = 18) {
   const merged = mergeFallback(primary, fallbackArticles, minCount);
-  if (merged.length >= minCount) {
-    return merged.map((article) => ({
-      ...article,
-      summary: enrichSummary(article.summary, article.title, article.source, article.year)
-    }));
-  }
-
-  const padded = [...merged];
-  let i = 0;
-
-  while (padded.length < minCount) {
-    const base = fallbackArticles[i % fallbackArticles.length];
-    const cut = Math.floor(i / fallbackArticles.length) + 1;
-    padded.push({
-      ...base,
-      title: `${base.title} (Archive Cut ${cut})`,
-      source: `${base.source} Archive`,
-      year: Math.max(1950, base.year - cut),
-      summary: enrichSummary(base.summary, base.title, `${base.source} Archive`, Math.max(1950, base.year - cut)),
-      publishedAt: undefined,
-      url: undefined
-    });
-    i += 1;
-  }
-
-  return padded.map((article) => ({
-    ...article,
-    summary: enrichSummary(article.summary, article.title, article.source, article.year)
-  }));
+  return merged;
 }
 
 async function getArticles() {
@@ -302,7 +257,15 @@ async function getArticles() {
 
     const normalized: FeedArticle[] = merged
       .filter((article) => {
-        const key = `${article.title}-${article.publishedAt}`;
+        const normalizedTitle = article.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, " ")
+          .trim();
+        const source = (article.source?.name ?? "unknown").toLowerCase().trim();
+        const year = article.publishedAt
+          ? new Date(article.publishedAt).getFullYear()
+          : new Date().getFullYear();
+        const key = `${normalizedTitle}-${source}-${year}`;
         if (seen.has(key)) {
           return false;
         }

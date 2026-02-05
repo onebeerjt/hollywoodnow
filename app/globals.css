@@ -141,6 +141,7 @@ body::after {
   border-radius: 26px;
   position: relative;
   overflow: hidden;
+  max-height: 100%;
 }
 
 .article__header {
@@ -172,6 +173,10 @@ body::after {
   line-height: 1.65;
   color: var(--ink);
   flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(106, 96, 85, 0.35) transparent;
 }
 
 .article__summary::first-letter {
@@ -181,6 +186,15 @@ body::after {
   line-height: 1;
   padding-right: 10px;
   color: var(--accent);
+}
+
+.article__summary::-webkit-scrollbar {
+  width: 8px;
+}
+
+.article__summary::-webkit-scrollbar-thumb {
+  background: rgba(106, 96, 85, 0.3);
+  border-radius: 999px;
 }
 
 .article__footer {
