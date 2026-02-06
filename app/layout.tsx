@@ -1,22 +1,10 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
-
-const display = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-display",
-  weight: ["600", "700"]
-});
-
-const text = Source_Serif_4({
-  subsets: ["latin"],
-  variable: "--font-text",
-  weight: ["400", "500"]
-});
+import { env } from "@/lib/env";
 
 export const metadata: Metadata = {
-  title: "Paper Feed",
-  description: "A TikTok-style feed for full-screen newspaper articles"
+  title: "Headless BigCommerce Store",
+  description: "Minimal storefront scaffold for BigCommerce + Next.js"
 };
 
 export default function RootLayout({
@@ -24,8 +12,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  void env;
   return (
-    <html lang="en" className={`${display.variable} ${text.variable}`}>
+    <html lang="en">
       <body>{children}</body>
     </html>
   );
