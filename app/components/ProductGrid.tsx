@@ -91,38 +91,27 @@ export default function ProductGrid({ category, page }: Props) {
   return (
     <div>
       {message ? <p>{message}</p> : null}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: "1rem"
-        }}
-      >
+      <div className="product-grid">
         {products.map((product) => {
-          const url = product.custom_url?.url ?? "";
-          const cleaned = url.replace(/^\//, "").replace(/\/$/, "");
-          const parts = cleaned.split("/");
-          const urlSlug = parts[parts.length - 1] || "";
-          const slug = urlSlug || `id-${product.id}`;
+          const slug = `id-${product.id}`;
           const image =
             product.images?.[0]?.url_standard ?? product.images?.[0]?.url_thumbnail;
           return (
-            <article
-              key={product.id}
-              style={{ border: "1px solid #ddd", padding: "1rem" }}
-            >
+            <article key={product.id} className="product-card">
               <Link href={`/p/${slug}`}>
                 <h2>{product.name}</h2>
               </Link>
               {image ? (
-                <img
-                  src={image}
-                  alt={product.name}
-                  style={{ width: "100%", height: "auto" }}
-                />
+                <img src={image} alt={product.name} />
               ) : null}
-              <p>{product.price ? `$${product.price.toFixed(2)}` : ""}</p>
-              <button type="button" onClick={() => addToCart(product.id)}>
+              <p className="price">
+                {product.price ? `$${product.price.toFixed(2)}` : ""}
+              </p>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => addToCart(product.id)}
+              >
                 Add to cart
               </button>
             </article>
