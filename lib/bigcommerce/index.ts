@@ -107,7 +107,13 @@ export async function getProducts(options?: {
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const normalize = (value: string) =>
     value.replace(/^\//, "").replace(/\/$/, "");
-  const normalized = normalize(slug);
+  const slugify = (value: string) =>
+    value
+      .toLowerCase()
+      .replace(/&/g, "and")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  const normalized = normalize(decodeURIComponent(slug));
   const limit = 250;
   let page = 1;
 
@@ -129,8 +135,10 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
     const match = result.data.find((product) => {
       const productUrl = product.custom_url?.url;
-      if (!productUrl) return false;
-      return normalize(productUrl) === normalized;
+      if (productUrl && normalize(productUrl) === normalized) {
+        return true;
+      }
+      return slugify(product.name) === normalized;
     });
     if (match) {
       return match;
