@@ -107,6 +107,11 @@ export async function getProducts(options?: {
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const normalize = (value: string) =>
     value.replace(/^\//, "").replace(/\/$/, "");
+  const lastSegment = (value: string) => {
+    const cleaned = normalize(value);
+    const parts = cleaned.split("/");
+    return parts[parts.length - 1] ?? cleaned;
+  };
   const slugify = (value: string) =>
     value
       .toLowerCase()
@@ -135,8 +140,10 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
     const match = result.data.find((product) => {
       const productUrl = product.custom_url?.url;
-      if (productUrl && normalize(productUrl) === normalized) {
-        return true;
+      if (productUrl) {
+        const normalizedUrl = normalize(productUrl);
+        if (normalizedUrl === normalized) return true;
+        if (lastSegment(normalizedUrl) === normalized) return true;
       }
       return slugify(product.name) === normalized;
     });

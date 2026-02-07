@@ -99,7 +99,11 @@ export default function ProductGrid({ category, page }: Props) {
         }}
       >
         {products.map((product) => {
-          const slug = product.custom_url?.url?.replace(/^\//, "") ?? String(product.id);
+          const url = product.custom_url?.url ?? "";
+          const cleaned = url.replace(/^\//, "").replace(/\/$/, "");
+          const parts = cleaned.split("/");
+          const urlSlug = parts[parts.length - 1] || "";
+          const slug = urlSlug || String(product.id);
           const image =
             product.images?.[0]?.url_standard ?? product.images?.[0]?.url_thumbnail;
           return (
