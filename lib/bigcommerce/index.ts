@@ -104,6 +104,17 @@ export async function getProducts(options?: {
   return result.data;
 }
 
+async function getProductById(id: number): Promise<Product | null> {
+  const params = new URLSearchParams({ include: "images" });
+  if (env.BIGCOMMERCE_CHANNEL_ID) {
+    params.set("channel_id", String(env.BIGCOMMERCE_CHANNEL_ID));
+  }
+  const result = await bcFetch<BigCommerceResponse<Product>>(
+    `/catalog/products/${id}?${params.toString()}`
+  );
+  return result.data ?? null;
+}
+
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const normalize = (value: string) =>
     value.replace(/^\//, "").replace(/\/$/, "");
@@ -119,6 +130,10 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
   const normalized = normalize(decodeURIComponent(slug));
+  const idMatch = normalized.match(/^id-(\d+)$/) ?? normalized.match(/^(\d+)$/);
+  if (idMatch) {
+    return getProductById(Number(idMatch[1] ?? idMatch[0]));
+  }
   const limit = 250;
   let page = 1;
 
