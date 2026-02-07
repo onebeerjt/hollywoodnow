@@ -105,7 +105,9 @@ export async function getProducts(options?: {
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const normalized = slug.startsWith("/") ? slug : `/${slug}`;
+  const normalize = (value: string) =>
+    value.replace(/^\//, "").replace(/\/$/, "");
+  const normalized = normalize(slug);
   const limit = 250;
   let page = 1;
 
@@ -125,9 +127,11 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       `/catalog/products?${params.toString()}`
     );
 
-    const match = result.data.find(
-      (product) => product.custom_url?.url === normalized
-    );
+    const match = result.data.find((product) => {
+      const productUrl = product.custom_url?.url;
+      if (!productUrl) return false;
+      return normalize(productUrl) === normalized;
+    });
     if (match) {
       return match;
     }
