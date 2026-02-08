@@ -193,6 +193,7 @@ export default function ProductGrid({ category, page }: Props) {
           const image = getPrimaryImage(product);
           const detail = details[product.id];
           const sizeOptions = detail ? getSizeOptions(detail) : [];
+          const isOpen = activeId === product.id;
           return (
             <article key={product.id} className="product-card palace-card">
               <button
@@ -202,20 +203,19 @@ export default function ProductGrid({ category, page }: Props) {
               >
                 <span className="tile-title">{product.name}</span>
               </button>
-              {image ? (
-                <img src={image} alt={product.name} />
-              ) : null}
+              {image ? <img src={image} alt={product.name} /> : null}
               <p className="price">
                 {product.price ? `$${product.price.toFixed(2)}` : ""}
               </p>
               <button
                 type="button"
-                className="btn ghost"
+                className="icon-btn"
                 onClick={() => openQuickAdd(product.id)}
+                aria-label="Quick add"
               >
-                Quick add
+                +
               </button>
-              {activeId === product.id ? (
+              {isOpen ? (
                 <div className="quick-panel">
                   {quickStatus[product.id] === "loading" ? (
                     <p>Loading sizes…</p>
@@ -239,9 +239,7 @@ export default function ProductGrid({ category, page }: Props) {
                         </button>
                       ))}
                     </div>
-                  ) : (
-                    <p>Single size</p>
-                  )}
+                  ) : null}
                   <button
                     type="button"
                     className="btn"
