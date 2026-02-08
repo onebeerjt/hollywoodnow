@@ -1,13 +1,13 @@
 :root {
   color-scheme: light;
-  --paper: #f8f2e7;
-  --paper-deep: #efe2cd;
-  --ink: #1b1815;
-  --muted: #675d51;
-  --gold: #b58b47;
-  --line: #ccb79a;
-  --card: rgba(255, 252, 245, 0.95);
-  --shadow: rgba(28, 22, 14, 0.18);
+  --paper: #f4efe7;
+  --paper-deep: #e6ded2;
+  --ink: #1c1a17;
+  --muted: #6f655b;
+  --accent: #9b8e7c;
+  --line: rgba(28, 26, 23, 0.12);
+  --card: rgba(255, 255, 255, 0.7);
+  --shadow: rgba(28, 26, 23, 0.16);
 }
 
 * {
@@ -25,7 +25,7 @@ body {
   font-family: var(--font-sans), "Space Grotesk", sans-serif;
   color: var(--ink);
   background:
-    radial-gradient(circle at top, rgba(255, 245, 221, 0.85), transparent 46%),
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.7), transparent 52%),
     linear-gradient(180deg, var(--paper) 0%, var(--paper-deep) 100%);
 }
 
@@ -34,8 +34,8 @@ body::before {
   position: fixed;
   inset: 0;
   background:
-    repeating-linear-gradient(120deg, rgba(0, 0, 0, 0.018) 0, rgba(0, 0, 0, 0.018) 1px, transparent 1px, transparent 7px),
-    radial-gradient(circle at 40% -10%, rgba(0, 0, 0, 0.2), transparent 50%);
+    repeating-linear-gradient(120deg, rgba(0, 0, 0, 0.02) 0, rgba(0, 0, 0, 0.02) 1px, transparent 1px, transparent 8px),
+    radial-gradient(circle at 50% -30%, rgba(0, 0, 0, 0.25), transparent 60%);
   pointer-events: none;
   z-index: 0;
 }
@@ -43,36 +43,37 @@ body::before {
 .page {
   position: relative;
   z-index: 1;
-  padding: 48px clamp(20px, 5vw, 80px) 80px;
+  padding: 56px clamp(20px, 6vw, 120px) 96px;
 }
 
 .hero {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 24px;
-  align-items: flex-start;
+  align-items: end;
   border-bottom: 1px solid var(--line);
-  padding-bottom: 32px;
+  padding-bottom: 40px;
 }
 
 .eyebrow {
   font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 0.35em;
+  letter-spacing: 0.4em;
   color: var(--muted);
   margin: 0 0 12px;
 }
 
 h1 {
   font-family: var(--font-display), "Cormorant Garamond", serif;
-  font-size: clamp(2.4rem, 4vw, 3.8rem);
-  margin: 0 0 16px;
+  font-size: clamp(3rem, 8vw, 6rem);
+  letter-spacing: 0.04em;
+  margin: 0 0 12px;
 }
 
 .lede {
   color: var(--muted);
-  font-size: 1.05rem;
-  max-width: 640px;
+  font-size: 1.1rem;
+  max-width: 700px;
   margin: 0;
 }
 
@@ -80,12 +81,15 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 18px;
+  padding: 10px 20px;
   border-radius: 999px;
   border: 1px solid var(--line);
-  background: #ffffff;
-  box-shadow: 0 14px 30px var(--shadow);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 18px 36px var(--shadow);
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
 }
 
 .section {
@@ -101,16 +105,16 @@ h1 {
 .product-card {
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 22px;
   padding: 18px;
-  box-shadow: 0 16px 40px var(--shadow);
+  box-shadow: 0 18px 40px var(--shadow);
   display: grid;
   gap: 12px;
 }
 
 .product-card h2 {
   font-family: var(--font-display), "Cormorant Garamond", serif;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   margin: 0;
 }
 
@@ -123,16 +127,21 @@ h1 {
 
 .price {
   font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .btn {
-  background: #17130f;
+  background: #15120f;
   color: #fff;
   border: none;
   padding: 10px 14px;
   border-radius: 999px;
   font-weight: 600;
   cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
 }
 
 .btn.secondary {
@@ -143,8 +152,8 @@ h1 {
 
 @media (max-width: 720px) {
   .hero {
-    flex-direction: column;
-    align-items: stretch;
+    grid-template-columns: 1fr;
+    align-items: start;
   }
 }
 

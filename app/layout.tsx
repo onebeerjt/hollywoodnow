@@ -16,8 +16,8 @@ const sans = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Headless BigCommerce Store",
-  description: "Minimal storefront scaffold for BigCommerce + Next.js"
+  title: "Marino Infantry",
+  description: "Headless BigCommerce storefront prototype"
 };
 
 export default function RootLayout({

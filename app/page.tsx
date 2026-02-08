@@ -10,18 +10,22 @@ export default function Home({
   const page = searchParams?.page;
 
   return (
-    <main style={{ padding: "2rem" }}>
-      <header style={{ display: "flex", justifyContent: "space-between" }}>
-        <div>
-          <h1>Headless BigCommerce Store</h1>
-          <p>Minimal product grid powered by the BigCommerce API.</p>
+    <main className="page">
+      <header className="hero">
+        <div className="hero__copy">
+          <p className="eyebrow">Season 01 · Experimental Supply</p>
+          <h1>Marino Infantry</h1>
+          <p className="lede">
+            Quiet utility, heavy silhouettes, and a clean headless pipeline.
+            Built for fast previews with secure keys and hosted checkout later.
+          </p>
         </div>
-        <nav>
+        <nav className="nav">
           <Link href="/cart">Cart</Link>
         </nav>
       </header>
 
-      <section style={{ marginTop: "2rem" }}>
+      <section className="section">
         <ProductGrid category={category} page={page} />
       </section>
     </main>
