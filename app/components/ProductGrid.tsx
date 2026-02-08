@@ -73,36 +73,6 @@ export default function ProductGrid({ category, page }: Props) {
     return () => controller.abort();
   }, [category, page]);
 
-  async function addToCart(productId: number) {
-    setMessage("");
-
-    const add = async () =>
-      fetch("/api/cart/items", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ line_items: [{ product_id: productId, quantity: 1 }] })
-      });
-
-    let response = await add();
-    if (response.status === 400) {
-      await fetch("/api/cart", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({})
-      });
-      response = await add();
-    }
-
-    if (!response.ok) {
-      setMessage("Could not add to cart.");
-      return;
-    }
-
-    setMessage("Added to cart.");
-  }
-
   function getPrimaryImage(product: Product) {
     const sorted = product.images
       ?.slice()
@@ -220,7 +190,6 @@ export default function ProductGrid({ category, page }: Props) {
       {message ? <p>{message}</p> : null}
       <div className="product-grid palace-grid">
         {products.map((product) => {
-          const slug = `id-${product.id}`;
           const image = getPrimaryImage(product);
           const detail = details[product.id];
           const sizeOptions = detail ? getSizeOptions(detail) : [];
