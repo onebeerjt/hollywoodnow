@@ -20,7 +20,31 @@ type Product = {
   brand_id?: number;
   custom_url?: { url?: string };
   description?: string;
-  images?: Array<{ url_standard?: string; url_thumbnail?: string }>;
+  images?: Array<{
+    url_standard?: string;
+    url_thumbnail?: string;
+    is_thumbnail?: boolean;
+    sort_order?: number;
+  }>;
+  variants?: Array<{
+    id: number;
+    sku?: string;
+    price?: number;
+    option_values?: Array<{
+      id?: number;
+      option_display_name?: string;
+      label?: string;
+    }>;
+  }>;
+  options?: Array<{
+    id: number;
+    display_name?: string;
+    type?: string;
+    option_values?: Array<{
+      id?: number;
+      label?: string;
+    }>;
+  }>;
 };
 
 type Cart = {
@@ -105,7 +129,7 @@ export async function getProducts(options?: {
 }
 
 async function getProductById(id: number): Promise<Product | null> {
-  const params = new URLSearchParams({ include: "images" });
+  const params = new URLSearchParams({ include: "images,variants,options" });
   if (env.BIGCOMMERCE_CHANNEL_ID) {
     params.set("channel_id", String(env.BIGCOMMERCE_CHANNEL_ID));
   }
@@ -163,7 +187,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       return slugify(product.name) === normalized;
     });
     if (match) {
-      return match;
+      return getProductById(match.id);
     }
 
     if (!result.data.length || result.data.length < limit) {

@@ -13,6 +13,17 @@ type Product = {
     is_thumbnail?: boolean;
     sort_order?: number;
   }>;
+  variants?: Array<{
+    id: number;
+    option_values?: Array<{
+      option_display_name?: string;
+      label?: string;
+    }>;
+  }>;
+  options?: Array<{
+    display_name?: string;
+    option_values?: Array<{ label?: string }>;
+  }>;
 };
 
 type ApiResponse = { data: Product };
@@ -25,6 +36,7 @@ export default function ProductDetail({ slug }: Props) {
   const [product, setProduct] = useState<Product | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [message, setMessage] = useState<string>("");
+  const [size, setSize] = useState<string>("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -49,12 +61,31 @@ export default function ProductDetail({ slug }: Props) {
 
   async function addToCart(productId: number) {
     setMessage("");
+    const variant =
+      size && product
+        ? product.variants?.find((variant) =>
+            (variant.option_values ?? []).some(
+              (value) =>
+                (value.option_display_name ?? "").toLowerCase().includes("size") &&
+                value.label === size
+            )
+          )
+        : undefined;
+
     const add = async () =>
       fetch("/api/cart/items", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ line_items: [{ product_id: productId, quantity: 1 }] })
+        body: JSON.stringify({
+          line_items: [
+            {
+              product_id: productId,
+              quantity: 1,
+              ...(variant ? { variant_id: variant.id } : {})
+            }
+          ]
+        })
       });
 
     let response = await add();
@@ -88,37 +119,60 @@ export default function ProductDetail({ slug }: Props) {
     return <p>Product not found.</p>;
   }
 
+  const sortedImages = product.images
+    ?.slice()
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   const image =
-    product.images
-      ?.slice()
-      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-      .find((img) => img.is_thumbnail)?.url_standard ??
-    product.images
-      ?.slice()
-      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-      [0]?.url_standard ??
-    product.images
-      ?.slice()
-      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-      [0]?.url_thumbnail;
+    sortedImages?.find((img) => img.is_thumbnail)?.url_standard ??
+    sortedImages?.[0]?.url_standard ??
+    sortedImages?.[0]?.url_thumbnail;
+
+  const sizeOptions =
+    product.options
+      ?.find((opt) => (opt.display_name ?? "").toLowerCase().includes("size"))
+      ?.option_values?.map((value) => value.label)
+      .filter(Boolean) ?? [];
 
   return (
-    <div style={{ display: "grid", gap: "1rem", maxWidth: "720px" }}>
-      <h1>{product.name}</h1>
-      {image ? (
-        <img src={image} alt={product.name} style={{ width: "100%" }} />
-      ) : null}
-      {product.price ? <p>${product.price.toFixed(2)}</p> : null}
-      {product.description ? (
-        <div
-          dangerouslySetInnerHTML={{ __html: product.description }}
-          style={{ lineHeight: 1.6 }}
-        />
-      ) : null}
-      <button type="button" onClick={() => addToCart(product.id)}>
-        Add to cart
-      </button>
-      {message ? <p>{message}</p> : null}
+    <div className="product-detail">
+      <div className="product-media">
+        {image ? <img src={image} alt={product.name} /> : null}
+      </div>
+      <div className="product-info">
+        <p className="eyebrow">Marino Infantry</p>
+        <h1>{product.name}</h1>
+        {product.price ? <p className="price">${product.price.toFixed(2)}</p> : null}
+        {product.description ? (
+          <div
+            className="product-desc"
+            dangerouslySetInnerHTML={{ __html: product.description }}
+          />
+        ) : null}
+        {sizeOptions.length ? (
+          <label className="quick-label">
+            Size
+            <select value={size} onChange={(event) => setSize(event.target.value)}>
+              <option value="">Select</option>
+              {sizeOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+        <div className="card-actions">
+          <button
+            type="button"
+            className="btn"
+            onClick={() => addToCart(product.id)}
+            disabled={sizeOptions.length > 0 && !size}
+          >
+            Add to cart
+          </button>
+        </div>
+        {message ? <p>{message}</p> : null}
+      </div>
     </div>
   );
 }
