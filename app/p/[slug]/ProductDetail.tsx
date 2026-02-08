@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 type Product = {
   id: number;
@@ -140,26 +141,21 @@ export default function ProductDetail({ slug }: Props) {
       </div>
       <div className="product-info">
         <p className="eyebrow">Marino Infantry</p>
-        <h1>{product.name}</h1>
+        <h1 className="product-title">{product.name}</h1>
         {product.price ? <p className="price">${product.price.toFixed(2)}</p> : null}
-        {product.description ? (
-          <div
-            className="product-desc"
-            dangerouslySetInnerHTML={{ __html: product.description }}
-          />
-        ) : null}
         {sizeOptions.length ? (
-          <label className="quick-label">
-            Size
-            <select value={size} onChange={(event) => setSize(event.target.value)}>
-              <option value="">Select</option>
-              {sizeOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="size-row">
+            {sizeOptions.map((option) => (
+              <button
+                key={option}
+                type="button"
+                className={`size-pill${size === option ? " is-active" : ""}`}
+                onClick={() => setSize(option)}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
         ) : null}
         <div className="card-actions">
           <button
@@ -170,7 +166,16 @@ export default function ProductDetail({ slug }: Props) {
           >
             Add to cart
           </button>
+          <Link className="btn secondary" href="/cart">
+            Go to cart
+          </Link>
         </div>
+        {product.description ? (
+          <div
+            className="product-desc compact"
+            dangerouslySetInnerHTML={{ __html: product.description }}
+          />
+        ) : null}
         {message ? <p>{message}</p> : null}
       </div>
     </div>
