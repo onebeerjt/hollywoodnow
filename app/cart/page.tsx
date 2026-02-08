@@ -24,9 +24,6 @@ type CartResponse = { data: Cart | null };
 
 export default function CartPage() {
   const [message, setMessage] = useState<string>("");
-  const [productId, setProductId] = useState<string>("");
-  const [quantity, setQuantity] = useState<string>("1");
-  const [itemId, setItemId] = useState<string>("");
   const [cart, setCart] = useState<Cart | null>(null);
   const [status, setStatus] = useState<"idle" | "loading">("idle");
 
@@ -58,38 +55,7 @@ export default function CartPage() {
     await loadCart();
   }
 
-  async function addItem() {
-    setMessage("");
-    const res = await fetch("/api/cart/items", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        line_items: [
-          {
-            product_id: Number(productId),
-            quantity: Number(quantity)
-          }
-        ]
-      })
-    });
-    setMessage(res.ok ? "Added item." : "Failed to add item.");
-    await loadCart();
-  }
-
-  async function updateItem(item = itemId) {
-    setMessage("");
-    const res = await fetch("/api/cart/items", {
-      method: "PATCH",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ item_id: item, quantity: Number(quantity) })
-    });
-    setMessage(res.ok ? "Updated item." : "Failed to update item.");
-    await loadCart();
-  }
-
-  async function removeItem(item = itemId) {
+  async function removeItem(item: string) {
     setMessage("");
     const res = await fetch("/api/cart/items", {
       method: "DELETE",
@@ -108,39 +74,52 @@ export default function CartPage() {
   ];
 
   return (
-    <main style={{ padding: "2rem", maxWidth: "780px" }}>
-      <nav style={{ marginBottom: "1rem" }}>
-        <Link href="/">Home</Link>
-      </nav>
+    <main className="page cart-page">
+      <header className="topbar">
+        <div className="logo-strip">
+          <span className="logo-mark">Marino</span>
+          <span className="logo-dot">•</span>
+          <span className="logo-mark">Infantry</span>
+        </div>
+        <nav className="nav">
+          <Link href="/">Back to shop</Link>
+        </nav>
+      </header>
 
-      <h1>Cart</h1>
-      <p>
-        Minimal cart controls to exercise the API routes. A full cart UI can be
-        layered later.
-      </p>
-
-      <section style={{ marginTop: "1.5rem" }}>
-        <h2>Current cart</h2>
-        {status === "loading" ? <p>Loading cart...</p> : null}
-        {!cart ? <p>No cart yet.</p> : null}
-        {cart && items.length === 0 ? <p>Cart is empty.</p> : null}
+      <section className="cart-shell">
+        <h1>Your Cart</h1>
+        {status === "loading" ? <p>Loading cart…</p> : null}
+        {!cart ? (
+          <div className="cart-empty">
+            <p>No cart yet.</p>
+            <button type="button" className="btn" onClick={createCart}>
+              Start cart
+            </button>
+          </div>
+        ) : null}
+        {cart && items.length === 0 ? (
+          <div className="cart-empty">
+            <p>Your cart is empty.</p>
+            <button type="button" className="btn" onClick={createCart}>
+              Refresh cart
+            </button>
+          </div>
+        ) : null}
         {items.length > 0 ? (
-          <div style={{ display: "grid", gap: "0.75rem", marginTop: "0.75rem" }}>
+          <div className="cart-list">
             {items.map((item) => (
-              <div
-                key={item.id}
-                style={{ border: "1px solid #ddd", padding: "0.75rem" }}
-              >
-                <strong>{item.name}</strong>
-                <p>Item ID: {item.id}</p>
-                {item.product_id ? <p>Product ID: {item.product_id}</p> : null}
-                <p>Qty: {item.quantity}</p>
-                {item.list_price ? <p>${item.list_price.toFixed(2)}</p> : null}
-                <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
-                  <button type="button" onClick={() => updateItem(item.id)}>
-                    Update qty
-                  </button>
-                  <button type="button" onClick={() => removeItem(item.id)}>
+              <div key={item.id} className="cart-item">
+                <div>
+                  <strong>{item.name}</strong>
+                  <p>Qty: {item.quantity}</p>
+                </div>
+                <div className="cart-meta">
+                  {item.list_price ? <p>${item.list_price.toFixed(2)}</p> : null}
+                  <button
+                    type="button"
+                    className="btn ghost"
+                    onClick={() => removeItem(item.id)}
+                  >
                     Remove
                   </button>
                 </div>
@@ -148,50 +127,8 @@ export default function CartPage() {
             ))}
           </div>
         ) : null}
+        {message ? <p>{message}</p> : null}
       </section>
-
-      <div style={{ display: "grid", gap: "1rem", marginTop: "1.5rem" }}>
-        <button type="button" onClick={createCart}>
-          Create cart
-        </button>
-
-        <label style={{ display: "grid", gap: "0.5rem" }}>
-          Product ID
-          <input
-            value={productId}
-            onChange={(event) => setProductId(event.target.value)}
-            placeholder="123"
-          />
-        </label>
-        <label style={{ display: "grid", gap: "0.5rem" }}>
-          Quantity
-          <input
-            value={quantity}
-            onChange={(event) => setQuantity(event.target.value)}
-            placeholder="1"
-          />
-        </label>
-        <button type="button" onClick={addItem}>
-          Add item
-        </button>
-
-        <label style={{ display: "grid", gap: "0.5rem" }}>
-          Cart Item ID
-          <input
-            value={itemId}
-            onChange={(event) => setItemId(event.target.value)}
-            placeholder="item-id"
-          />
-        </label>
-        <button type="button" onClick={() => updateItem()}>
-          Update item
-        </button>
-        <button type="button" onClick={() => removeItem()}>
-          Remove item
-        </button>
-      </div>
-
-      {message ? <p style={{ marginTop: "1rem" }}>{message}</p> : null}
     </main>
   );
 }

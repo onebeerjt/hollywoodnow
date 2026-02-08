@@ -203,8 +203,10 @@ export default function ProductGrid({ category, page }: Props) {
               >
                 <span className="tile-title">{product.name}</span>
               </button>
-              {image ? <img src={image} alt={product.name} /> : null}
-              <p className="price">
+              <div className="tile-media">
+                {image ? <img src={image} alt={product.name} /> : null}
+              </div>
+              <p className="price price-line">
                 {product.price ? `$${product.price.toFixed(2)}` : ""}
               </p>
               <button

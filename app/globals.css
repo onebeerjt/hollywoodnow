@@ -208,6 +208,10 @@ h1 {
   margin-top: -4px;
 }
 
+.price-line {
+  min-height: 1.25rem;
+}
+
 .btn {
   background: #15120f;
   color: #fff;
@@ -277,6 +281,18 @@ h1 {
   transform: translateY(-2px);
 }
 
+.tile-media {
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tile-media img {
+  max-height: 160px;
+  width: auto;
+}
+
 .card-actions {
   display: flex;
   gap: 8px;
@@ -290,6 +306,40 @@ h1 {
   border-radius: 14px;
   border: 1px solid var(--line);
   background: #fff;
+}
+
+.cart-page h1 {
+  margin-top: 0;
+}
+
+.cart-shell {
+  max-width: 720px;
+}
+
+.cart-list {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+}
+
+.cart-meta {
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+}
+
+.cart-empty {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .quick-label {
