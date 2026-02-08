@@ -160,8 +160,8 @@ h1 {
 }
 
 .palace-grid {
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 20px 28px;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 18px 28px;
 }
 
 .product-card {
@@ -282,14 +282,15 @@ h1 {
 }
 
 .tile-media {
-  height: 160px;
+  height: 190px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .tile-media img {
-  max-height: 160px;
+  max-height: 190px;
+  max-width: 210px;
   width: auto;
 }
 
