@@ -13,7 +13,7 @@ export default function Home({
     <main className="page">
       <header className="hero">
         <div className="hero__copy">
-          <p className="eyebrow">Season 01 · Experimental Supply</p>
+          <p className="eyebrow">Marino Infantry</p>
           <h1>Marino Infantry</h1>
           <p className="lede">
             Quiet utility, heavy silhouettes, and a clean headless pipeline.
