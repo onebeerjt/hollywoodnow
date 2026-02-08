@@ -39,7 +39,7 @@ body::before {
 .page {
   position: relative;
   z-index: 1;
-  padding: 36px clamp(20px, 4vw, 80px) 80px;
+  padding: 20px clamp(20px, 4vw, 80px) 40px;
 }
 
 .hero {
@@ -98,7 +98,7 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 28px;
+  margin-bottom: 12px;
 }
 
 .logo-strip {
@@ -118,7 +118,7 @@ h1 {
 .catalog {
   display: grid;
   grid-template-columns: 160px minmax(0, 1fr);
-  gap: 24px;
+  gap: 16px;
   align-items: start;
 }
 
@@ -161,7 +161,7 @@ h1 {
 
 .palace-grid {
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 32px;
+  gap: 20px 28px;
 }
 
 .product-card {
@@ -179,7 +179,7 @@ h1 {
   border: none;
   box-shadow: none;
   padding: 0;
-  gap: 12px;
+  gap: 8px;
   position: relative;
 }
 
@@ -205,6 +205,7 @@ h1 {
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  margin-top: -4px;
 }
 
 .btn {
