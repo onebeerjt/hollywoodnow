@@ -122,6 +122,13 @@ export default function ProductGrid({ category, page }: Props) {
     if (res.ok) {
       const data = (await res.json()) as ProductResponse;
       setDetails((prev) => ({ ...prev, [productId]: data.data }));
+      const sizes = getSizeOptions(data.data);
+      if (sizes.length) {
+        setSizeSelection((prev) => ({
+          ...prev,
+          [productId]: prev[productId] ?? sizes[0] ?? ""
+        }));
+      }
     }
     setQuickStatus((prev) => ({ ...prev, [productId]: "idle" }));
   }
@@ -159,7 +166,8 @@ export default function ProductGrid({ category, page }: Props) {
     }
 
     if (!response.ok) {
-      setMessage("Could not add to cart.");
+      const text = await response.text().catch(() => "");
+      setMessage(text ? `Add to cart failed: ${text}` : "Could not add to cart.");
       return;
     }
 
@@ -309,6 +317,7 @@ export default function ProductGrid({ category, page }: Props) {
                   >
                     Add to cart
                   </button>
+                  {message ? <p>{message}</p> : null}
                 </div>
               </div>
             ) : (
