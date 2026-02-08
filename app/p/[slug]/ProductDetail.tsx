@@ -7,7 +7,12 @@ type Product = {
   name: string;
   description?: string;
   price?: number;
-  images?: Array<{ url_standard?: string; url_thumbnail?: string }>;
+  images?: Array<{
+    url_standard?: string;
+    url_thumbnail?: string;
+    is_thumbnail?: boolean;
+    sort_order?: number;
+  }>;
 };
 
 type ApiResponse = { data: Product };
@@ -83,7 +88,19 @@ export default function ProductDetail({ slug }: Props) {
     return <p>Product not found.</p>;
   }
 
-  const image = product.images?.[0]?.url_standard ?? product.images?.[0]?.url_thumbnail;
+  const image =
+    product.images
+      ?.slice()
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+      .find((img) => img.is_thumbnail)?.url_standard ??
+    product.images
+      ?.slice()
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+      [0]?.url_standard ??
+    product.images
+      ?.slice()
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+      [0]?.url_thumbnail;
 
   return (
     <div style={{ display: "grid", gap: "1rem", maxWidth: "720px" }}>

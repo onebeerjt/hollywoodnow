@@ -8,7 +8,12 @@ type Product = {
   name: string;
   price?: number;
   custom_url?: { url?: string };
-  images?: Array<{ url_standard?: string; url_thumbnail?: string }>;
+  images?: Array<{
+    url_standard?: string;
+    url_thumbnail?: string;
+    is_thumbnail?: boolean;
+    sort_order?: number;
+  }>;
 };
 
 type ApiResponse = { data: Product[] };
@@ -95,7 +100,18 @@ export default function ProductGrid({ category, page }: Props) {
         {products.map((product) => {
           const slug = `id-${product.id}`;
           const image =
-            product.images?.[0]?.url_standard ?? product.images?.[0]?.url_thumbnail;
+            product.images
+              ?.slice()
+              .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+              .find((img) => img.is_thumbnail)?.url_standard ??
+            product.images
+              ?.slice()
+              .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+              [0]?.url_standard ??
+            product.images
+              ?.slice()
+              .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+              [0]?.url_thumbnail;
           return (
             <article key={product.id} className="product-card">
               <Link href={`/p/${slug}`}>
