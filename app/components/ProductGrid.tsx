@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 
 type Product = {
   id: number;
@@ -45,6 +44,7 @@ export default function ProductGrid({ category, page }: Props) {
   const [quickStatus, setQuickStatus] = useState<Record<number, "idle" | "loading">>(
     {}
   );
+  const [modalId, setModalId] = useState<number | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -196,6 +196,17 @@ export default function ProductGrid({ category, page }: Props) {
     setMessage("Added to cart.");
   }
 
+  async function openModal(productId: number) {
+    setModalId(productId);
+    if (!details[productId]) {
+      await openQuickAdd(productId);
+    }
+  }
+
+  function closeModal() {
+    setModalId(null);
+  }
+
   if (status === "loading") {
     return <p>Loading products...</p>;
   }
@@ -207,64 +218,58 @@ export default function ProductGrid({ category, page }: Props) {
   return (
     <div>
       {message ? <p>{message}</p> : null}
-      <div className="product-grid">
+      <div className="product-grid palace-grid">
         {products.map((product) => {
           const slug = `id-${product.id}`;
           const image = getPrimaryImage(product);
           const detail = details[product.id];
           const sizeOptions = detail ? getSizeOptions(detail) : [];
           return (
-            <article key={product.id} className="product-card">
-              <Link href={`/p/${slug}`}>
-                <h2>{product.name}</h2>
-              </Link>
+            <article key={product.id} className="product-card palace-card">
+              <button
+                type="button"
+                className="tile-link"
+                onClick={() => openModal(product.id)}
+              >
+                <span className="tile-title">{product.name}</span>
+              </button>
               {image ? (
                 <img src={image} alt={product.name} />
               ) : null}
               <p className="price">
                 {product.price ? `$${product.price.toFixed(2)}` : ""}
               </p>
-              <div className="card-actions">
-                <button
-                  type="button"
-                  className="btn secondary"
-                  onClick={() => openQuickAdd(product.id)}
-                >
-                  Quick add
-                </button>
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => addToCart(product.id)}
-                >
-                  Add to cart
-                </button>
-              </div>
-
+              <button
+                type="button"
+                className="btn ghost"
+                onClick={() => openQuickAdd(product.id)}
+              >
+                Quick add
+              </button>
               {activeId === product.id ? (
                 <div className="quick-panel">
                   {quickStatus[product.id] === "loading" ? (
                     <p>Loading sizes…</p>
                   ) : sizeOptions.length ? (
-                    <label className="quick-label">
-                      Size
-                      <select
-                        value={sizeSelection[product.id] ?? ""}
-                        onChange={(event) =>
-                          setSizeSelection((prev) => ({
-                            ...prev,
-                            [product.id]: event.target.value
-                          }))
-                        }
-                      >
-                        <option value="">Select</option>
-                        {sizeOptions.map((size) => (
-                          <option key={size} value={size}>
-                            {size}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                    <div className="size-row">
+                      {sizeOptions.map((size) => (
+                        <button
+                          key={size}
+                          type="button"
+                          className={`size-pill${
+                            sizeSelection[product.id] === size ? " is-active" : ""
+                          }`}
+                          onClick={() =>
+                            setSizeSelection((prev) => ({
+                              ...prev,
+                              [product.id]: size
+                            }))
+                          }
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
                   ) : (
                     <p>Single size</p>
                   )}
@@ -282,6 +287,67 @@ export default function ProductGrid({ category, page }: Props) {
           );
         })}
       </div>
+      {modalId ? (
+        <div className="modal-backdrop" onClick={closeModal}>
+          <div className="modal" onClick={(event) => event.stopPropagation()}>
+            <button type="button" className="modal-close" onClick={closeModal}>
+              Close
+            </button>
+            {details[modalId] ? (
+              <div className="modal-body">
+                {getPrimaryImage(details[modalId]) ? (
+                  <img
+                    src={getPrimaryImage(details[modalId])}
+                    alt={details[modalId].name}
+                  />
+                ) : null}
+                <div className="modal-info">
+                  <h2>{details[modalId].name}</h2>
+                  {details[modalId].price ? (
+                    <p className="price">
+                      ${details[modalId].price?.toFixed(2)}
+                    </p>
+                  ) : null}
+                  {getSizeOptions(details[modalId]).length ? (
+                    <div className="size-row">
+                      {getSizeOptions(details[modalId]).map((size) => (
+                        <button
+                          key={size}
+                          type="button"
+                          className={`size-pill${
+                            sizeSelection[modalId] === size ? " is-active" : ""
+                          }`}
+                          onClick={() =>
+                            setSizeSelection((prev) => ({
+                              ...prev,
+                              [modalId]: size
+                            }))
+                          }
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => quickAdd(modalId)}
+                    disabled={
+                      getSizeOptions(details[modalId]).length > 0 &&
+                      !sizeSelection[modalId]
+                    }
+                  >
+                    Add to cart
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p>Loading…</p>
+            )}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
