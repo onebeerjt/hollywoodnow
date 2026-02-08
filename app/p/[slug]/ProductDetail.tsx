@@ -132,7 +132,7 @@ export default function ProductDetail({ slug }: Props) {
     product.options
       ?.find((opt) => (opt.display_name ?? "").toLowerCase().includes("size"))
       ?.option_values?.map((value) => value.label)
-      .filter(Boolean) ?? [];
+      .filter((value): value is string => Boolean(value)) ?? [];
 
   return (
     <div className="product-detail">
