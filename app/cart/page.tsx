@@ -13,6 +13,10 @@ type CartItem = {
 
 type Cart = {
   id: string;
+  redirect_urls?: {
+    cart_url?: string;
+    checkout_url?: string;
+  };
   line_items?: {
     physical_items?: CartItem[];
     digital_items?: CartItem[];
@@ -87,7 +91,20 @@ export default function CartPage() {
       </header>
 
       <section className="cart-shell">
-        <h1>Your Cart</h1>
+        <div className="cart-header">
+          <h1>Your Cart</h1>
+          {cart?.redirect_urls?.checkout_url ? (
+            <button
+              type="button"
+              className="btn"
+              onClick={() =>
+                (window.location.href = cart.redirect_urls?.checkout_url ?? "/")
+              }
+            >
+              Checkout
+            </button>
+          ) : null}
+        </div>
         {status === "loading" ? <p>Loading cart…</p> : null}
         {!cart ? (
           <div className="cart-empty">

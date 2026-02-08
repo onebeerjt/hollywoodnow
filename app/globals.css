@@ -317,6 +317,13 @@ h1 {
   max-width: 720px;
 }
 
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
 .cart-list {
   display: grid;
   gap: 16px;

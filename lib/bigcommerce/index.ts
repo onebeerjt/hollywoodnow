@@ -49,6 +49,10 @@ type Product = {
 
 type Cart = {
   id: string;
+  redirect_urls?: {
+    cart_url?: string;
+    checkout_url?: string;
+  };
   line_items?: {
     physical_items?: Array<{
       id: string;
