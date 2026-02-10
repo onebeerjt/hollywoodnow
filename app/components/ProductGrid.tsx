@@ -45,6 +45,7 @@ export default function ProductGrid({ category, page }: Props) {
     {}
   );
   const [modalId, setModalId] = useState<number | null>(null);
+  const [hoverImage, setHoverImage] = useState<Record<number, string>>({});
 
   useEffect(() => {
     const controller = new AbortController();
@@ -218,7 +219,7 @@ export default function ProductGrid({ category, page }: Props) {
       {message ? <p>{message}</p> : null}
       <div className="product-grid palace-grid">
         {products.map((product) => {
-          const image = getPrimaryImage(product);
+          const image = hoverImage[product.id] ?? getPrimaryImage(product);
           const secondaryImages = getSortedImages(product)
             .filter((img) => img.url_thumbnail || img.url_standard)
             .slice(1, 7);
@@ -244,6 +245,19 @@ export default function ProductGrid({ category, page }: Props) {
                       key={`${product.id}-alt-${index}`}
                       src={img.url_thumbnail ?? img.url_standard}
                       alt=""
+                      onMouseEnter={() =>
+                        setHoverImage((prev) => ({
+                          ...prev,
+                          [product.id]: img.url_standard ?? img.url_thumbnail ?? ""
+                        }))
+                      }
+                      onMouseLeave={() =>
+                        setHoverImage((prev) => {
+                          const copy = { ...prev };
+                          delete copy[product.id];
+                          return copy;
+                        })
+                      }
                     />
                   ))}
                 </div>
