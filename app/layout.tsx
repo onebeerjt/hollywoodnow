@@ -1,23 +1,23 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Space_Grotesk } from "next/font/google";
+import { Bebas_Neue, Sora } from "next/font/google";
 import "./globals.css";
 import { env } from "@/lib/env";
 
-const display = Cormorant_Garamond({
+const display = Bebas_Neue({
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["400"],
   variable: "--font-display"
 });
 
-const sans = Space_Grotesk({
+const sans = Sora({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-sans"
 });
 
 export const metadata: Metadata = {
-  title: "Marino Infantry",
-  description: "Headless BigCommerce storefront prototype"
+  title: "ReelPulse Miami",
+  description: "Miami showtimes, upcoming releases, and confidential screening radar."
 };
 
 export default function RootLayout({
