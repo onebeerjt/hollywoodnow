@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Sora } from "next/font/google";
 import "./globals.css";
-import { env } from "@/lib/env";
 
 const display = Bebas_Neue({
   subsets: ["latin"],
@@ -25,7 +24,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  void env;
   return (
     <html lang="en" className={`${display.variable} ${sans.variable}`}>
       <body>{children}</body>
