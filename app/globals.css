@@ -218,6 +218,13 @@ h1 {
   gap: 8px;
 }
 
+.added-pill {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+}
+
 .btn {
   background: #15120f;
   color: #fff;
@@ -361,6 +368,19 @@ h1 {
   gap: 16px;
   border-bottom: 1px solid var(--line);
   padding-bottom: 12px;
+}
+
+.cart-info {
+  display: grid;
+  gap: 6px;
+}
+
+.cart-info img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  border: 1px solid var(--line);
+  background: #fff;
 }
 
 .cart-meta {

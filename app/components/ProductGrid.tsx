@@ -46,6 +46,7 @@ export default function ProductGrid({ category, page }: Props) {
   );
   const [modalId, setModalId] = useState<number | null>(null);
   const [hoverImage, setHoverImage] = useState<Record<number, string>>({});
+  const [added, setAdded] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     const controller = new AbortController();
@@ -181,6 +182,14 @@ export default function ProductGrid({ category, page }: Props) {
     }
 
     setMessage("Added to cart.");
+    setAdded((prev) => ({ ...prev, [productId]: true }));
+    setTimeout(() => {
+      setAdded((prev) => {
+        const copy = { ...prev };
+        delete copy[productId];
+        return copy;
+      });
+    }, 1500);
   }
 
   async function openModal(productId: number) {
@@ -216,7 +225,6 @@ export default function ProductGrid({ category, page }: Props) {
 
   return (
     <div>
-      {message ? <p>{message}</p> : null}
       <div className="product-grid palace-grid">
         {products.map((product) => {
           const image = hoverImage[product.id] ?? getPrimaryImage(product);
@@ -272,9 +280,10 @@ export default function ProductGrid({ category, page }: Props) {
                   onClick={() => handleQuickAddClick(product.id)}
                   aria-label="Quick add"
                 >
-                  +
+                  {added[product.id] ? "✓" : "+"}
                 </button>
               </div>
+              {added[product.id] ? <span className="added-pill">Added</span> : null}
               {isOpen ? (
                 <div className="quick-panel">
                   {quickStatus[product.id] === "loading" ? (

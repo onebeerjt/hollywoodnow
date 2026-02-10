@@ -11,6 +11,17 @@ type CartItem = {
   list_price?: number;
 };
 
+type ProductSummary = {
+  id: number;
+  name: string;
+  images?: Array<{
+    url_standard?: string;
+    url_thumbnail?: string;
+    is_thumbnail?: boolean;
+    sort_order?: number;
+  }>;
+};
+
 type Cart = {
   id: string;
   redirect_urls?: {
@@ -25,11 +36,13 @@ type Cart = {
 };
 
 type CartResponse = { data: Cart | null };
+type ProductResponse = { data: ProductSummary };
 
 export default function CartPage() {
   const [message, setMessage] = useState<string>("");
   const [cart, setCart] = useState<Cart | null>(null);
   const [status, setStatus] = useState<"idle" | "loading">("idle");
+  const [products, setProducts] = useState<Record<number, ProductSummary>>({});
 
   async function loadCart() {
     setStatus("loading");
@@ -41,6 +54,30 @@ export default function CartPage() {
     const data = (await res.json()) as CartResponse;
     setCart(data.data);
     setStatus("idle");
+
+    const ids = [
+      ...(data.data?.line_items?.physical_items ?? []),
+      ...(data.data?.line_items?.digital_items ?? [])
+    ]
+      .map((item) => item.product_id)
+      .filter((id): id is number => Boolean(id));
+
+    const uniqueIds = Array.from(new Set(ids));
+    if (uniqueIds.length) {
+      const results = await Promise.all(
+        uniqueIds.map(async (id) => {
+          const response = await fetch(`/api/product/id-${id}`);
+          if (!response.ok) return null;
+          const payload = (await response.json()) as ProductResponse;
+          return payload.data;
+        })
+      );
+      const map: Record<number, ProductSummary> = {};
+      results.filter(Boolean).forEach((product) => {
+        if (product) map[product.id] = product;
+      });
+      setProducts(map);
+    }
   }
 
   useEffect(() => {
@@ -76,6 +113,17 @@ export default function CartPage() {
     ...(cart?.line_items?.digital_items ?? []),
     ...(cart?.line_items?.custom_items ?? [])
   ];
+
+  function getPrimaryImage(product?: ProductSummary) {
+    const sorted = product?.images
+      ?.slice()
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    return (
+      sorted?.find((img) => img.is_thumbnail)?.url_standard ??
+      sorted?.[0]?.url_standard ??
+      sorted?.[0]?.url_thumbnail
+    );
+  }
 
   return (
     <main className="page cart-page">
@@ -126,7 +174,13 @@ export default function CartPage() {
           <div className="cart-list">
             {items.map((item) => (
               <div key={item.id} className="cart-item">
-                <div>
+                <div className="cart-info">
+                  {item.product_id && products[item.product_id] ? (
+                    <img
+                      src={getPrimaryImage(products[item.product_id])}
+                      alt={products[item.product_id].name}
+                    />
+                  ) : null}
                   <strong>{item.name}</strong>
                   <p>Qty: {item.quantity}</p>
                 </div>
