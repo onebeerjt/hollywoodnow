@@ -294,6 +294,27 @@ h1 {
   width: auto;
 }
 
+.tile-rail {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  opacity: 0;
+  max-height: 0;
+  transition: opacity 0.2s ease, max-height 0.2s ease;
+}
+
+.tile-rail img {
+  height: 42px;
+  width: auto;
+  opacity: 0.75;
+}
+
+.palace-card:hover .tile-rail {
+  opacity: 1;
+  max-height: 50px;
+}
+
 .card-actions {
   display: flex;
   gap: 8px;

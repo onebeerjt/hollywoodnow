@@ -73,10 +73,16 @@ export default function ProductGrid({ category, page }: Props) {
     return () => controller.abort();
   }, [category, page]);
 
+  function getSortedImages(product: Product) {
+    return (
+      product.images
+        ?.slice()
+        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)) ?? []
+    );
+  }
+
   function getPrimaryImage(product: Product) {
-    const sorted = product.images
-      ?.slice()
-      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    const sorted = getSortedImages(product);
     return (
       sorted?.find((img) => img.is_thumbnail)?.url_standard ??
       sorted?.[0]?.url_standard ??
@@ -115,8 +121,7 @@ export default function ProductGrid({ category, page }: Props) {
   }
 
   async function openQuickAdd(productId: number) {
-    setActiveId(productId);
-    if (details[productId]) return;
+    if (details[productId]) return details[productId];
     setQuickStatus((prev) => ({ ...prev, [productId]: "loading" }));
     const res = await fetch(`/api/product/id-${productId}`);
     if (res.ok) {
@@ -129,8 +134,11 @@ export default function ProductGrid({ category, page }: Props) {
           [productId]: prev[productId] ?? sizes[0] ?? ""
         }));
       }
+      setQuickStatus((prev) => ({ ...prev, [productId]: "idle" }));
+      return data.data;
     }
     setQuickStatus((prev) => ({ ...prev, [productId]: "idle" }));
+    return null;
   }
 
   async function quickAdd(productId: number) {
@@ -181,6 +189,18 @@ export default function ProductGrid({ category, page }: Props) {
     }
   }
 
+  async function handleQuickAddClick(productId: number) {
+    const product = (await openQuickAdd(productId)) ?? details[productId];
+    if (!product) return;
+    const sizes = getSizeOptions(product);
+    if (sizes.length <= 1) {
+      setActiveId(null);
+      await quickAdd(productId);
+      return;
+    }
+    setActiveId((prev) => (prev === productId ? null : productId));
+  }
+
   function closeModal() {
     setModalId(null);
   }
@@ -199,6 +219,9 @@ export default function ProductGrid({ category, page }: Props) {
       <div className="product-grid palace-grid">
         {products.map((product) => {
           const image = getPrimaryImage(product);
+          const secondaryImages = getSortedImages(product)
+            .filter((img) => img.url_thumbnail || img.url_standard)
+            .slice(1, 7);
           const detail = details[product.id];
           const sizeOptions = detail ? getSizeOptions(detail) : [];
           const isOpen = activeId === product.id;
@@ -214,13 +237,24 @@ export default function ProductGrid({ category, page }: Props) {
               <div className="tile-media">
                 {image ? <img src={image} alt={product.name} /> : null}
               </div>
+              {secondaryImages.length ? (
+                <div className="tile-rail" aria-hidden>
+                  {secondaryImages.map((img, index) => (
+                    <img
+                      key={`${product.id}-alt-${index}`}
+                      src={img.url_thumbnail ?? img.url_standard}
+                      alt=""
+                    />
+                  ))}
+                </div>
+              ) : null}
               <p className="price price-line">
                 {product.price ? `$${product.price.toFixed(2)}` : ""}
               </p>
               <button
                 type="button"
                 className="icon-btn"
-                onClick={() => openQuickAdd(product.id)}
+                onClick={() => handleQuickAddClick(product.id)}
                 aria-label="Quick add"
               >
                 +
@@ -229,7 +263,7 @@ export default function ProductGrid({ category, page }: Props) {
                 <div className="quick-panel">
                   {quickStatus[product.id] === "loading" ? (
                     <p>Loading sizes…</p>
-                  ) : sizeOptions.length ? (
+                  ) : sizeOptions.length > 1 ? (
                     <div className="size-row">
                       {sizeOptions.map((size) => (
                         <button
@@ -285,7 +319,7 @@ export default function ProductGrid({ category, page }: Props) {
                       ${details[modalId].price?.toFixed(2)}
                     </p>
                   ) : null}
-                  {getSizeOptions(details[modalId]).length ? (
+                  {getSizeOptions(details[modalId]).length > 1 ? (
                     <div className="size-row">
                       {getSizeOptions(details[modalId]).map((size) => (
                         <button
