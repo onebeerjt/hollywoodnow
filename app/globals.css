@@ -212,6 +212,12 @@ h1 {
   min-height: 1.25rem;
 }
 
+.price-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .btn {
   background: #15120f;
   color: #fff;
@@ -261,11 +267,9 @@ h1 {
 }
 
 .icon-btn {
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 28px;
-  height: 28px;
+  position: relative;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   border: 1px solid var(--line);
   background: #fff;
@@ -278,7 +282,7 @@ h1 {
 
 .palace-card:hover .icon-btn {
   opacity: 1;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .tile-media {

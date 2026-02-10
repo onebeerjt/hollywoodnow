@@ -262,17 +262,19 @@ export default function ProductGrid({ category, page }: Props) {
                   ))}
                 </div>
               ) : null}
-              <p className="price price-line">
-                {product.price ? `$${product.price.toFixed(2)}` : ""}
-              </p>
-              <button
-                type="button"
-                className="icon-btn"
-                onClick={() => handleQuickAddClick(product.id)}
-                aria-label="Quick add"
-              >
-                +
-              </button>
+              <div className="price-row">
+                <p className="price price-line">
+                  {product.price ? `$${product.price.toFixed(2)}` : ""}
+                </p>
+                <button
+                  type="button"
+                  className="icon-btn"
+                  onClick={() => handleQuickAddClick(product.id)}
+                  aria-label="Quick add"
+                >
+                  +
+                </button>
+              </div>
               {isOpen ? (
                 <div className="quick-panel">
                   {quickStatus[product.id] === "loading" ? (
