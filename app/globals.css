@@ -39,7 +39,7 @@ body::before {
 .page {
   position: relative;
   z-index: 1;
-  padding: 20px clamp(20px, 4vw, 80px) 40px;
+  padding: 44px clamp(20px, 4vw, 80px) 96px;
 }
 
 .hero {
@@ -98,7 +98,7 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 24px;
 }
 
 .logo-strip {
@@ -117,8 +117,8 @@ h1 {
 
 .catalog {
   display: grid;
-  grid-template-columns: 160px minmax(0, 1fr);
-  gap: 16px;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 28px;
   align-items: start;
 }
 
@@ -160,8 +160,8 @@ h1 {
 }
 
 .palace-grid {
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 18px 28px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 56px 80px;
 }
 
 .product-card {
@@ -181,6 +181,8 @@ h1 {
   padding: 0;
   gap: 8px;
   position: relative;
+  justify-items: center;
+  text-align: center;
 }
 
 .product-card h2 {
@@ -263,11 +265,12 @@ h1 {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.2s ease;
   display: inline-block;
 }
 
+/* Keep titles visible by default in the "floating objects" layout. */
 .palace-card:hover .tile-title {
   opacity: 1;
 }
@@ -284,7 +287,7 @@ h1 {
   color: #111;
   font-weight: 700;
   cursor: pointer;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
@@ -294,15 +297,15 @@ h1 {
 }
 
 .tile-media {
-  height: 190px;
+  height: 260px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .tile-media img {
-  max-height: 190px;
-  max-width: 210px;
+  max-height: 260px;
+  max-width: 280px;
   width: auto;
 }
 
@@ -311,8 +314,8 @@ h1 {
   gap: 8px;
   overflow-x: auto;
   padding-bottom: 4px;
-  opacity: 0;
-  max-height: 0;
+  opacity: 1;
+  max-height: 60px;
   transition: opacity 0.2s ease, max-height 0.2s ease;
 }
 
@@ -324,7 +327,7 @@ h1 {
 
 .palace-card:hover .tile-rail {
   opacity: 1;
-  max-height: 50px;
+  max-height: 60px;
 }
 
 .card-actions {
