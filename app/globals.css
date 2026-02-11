@@ -224,7 +224,6 @@ h1 {
   letter-spacing: 0.18em;
   color: var(--muted);
 }
-
 .btn {
   background: #15120f;
   color: #fff;
@@ -274,9 +273,11 @@ h1 {
 }
 
 .icon-btn {
-  position: relative;
-  width: 22px;
-  height: 22px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 1px solid var(--line);
   background: #fff;
@@ -289,7 +290,7 @@ h1 {
 
 .palace-card:hover .icon-btn {
   opacity: 1;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .tile-media {
